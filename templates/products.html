@@ -1,0 +1,16 @@
+{% extends 'base.html' %} {%load static%}
+{% block title %}Products | MyStore{% endblock %}
+{% block content %}
+<h2 class="page-title">All Products</h2>
+<div class="product-grid">
+    {% for product in products %}
+    <div class="product-card">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        <h3>{{ product.name }}</h3>
+        <p class="category">{{ product.category }}</p>
+        <p class="price">${{ product.price }}</p>
+        <a href="{% url 'delete_product' product.id %}" class="delete-btn">Delete</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

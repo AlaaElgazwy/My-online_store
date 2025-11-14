@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{%block title%}My store{%endblock%}</title>
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+</head>
+<body>
+    <header>
+        <div class="logo">My store</div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/products/">products</a>
+            <a href="/add/">Add product</a>
+            <a href="/profile/">profile</a>
+            <a href="/contact_us/">Contact us</a>
+            {%if user.is_authenticated%}
+            <a href="/accounts/logout" class="btn-logout">logout</a>
+            {%else%}
+            <a href="/accounts/login/">login</a>
+            <a href="/accounts/register/">register</a>
+            {%endif%}
+
+        </nav>
+    </header>
+    <main>
+        {%block content%}
+        {%endblock%}
+    </main>
+    <footer>
+        <p>@ 2025 My store | Created by Alaa Elgazwy</p>
+    </footer>
+    
+</body>
+</html>

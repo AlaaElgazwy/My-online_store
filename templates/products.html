@@ -9,7 +9,11 @@
         <h3>{{ product.name }}</h3>
         <p class="category">{{ product.category }}</p>
         <p class="price">${{ product.price }}</p>
+        <br>
+        <button class="btn">
         <a href="{% url 'delete_product' product.id %}" class="delete-btn">Delete</a>
+        </button>
+        <button type="button" class="btn">buy</button>
     </div>
     {% endfor %}
 </div>

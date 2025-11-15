@@ -9,6 +9,8 @@ def register_view(request):
     if request.method=='POST':
         username=request.POST.get('username')
         password=request.POST.get('password')
+        
+
         user=User.objects.create_user(username=username,password=password)
         user.save()
         messages.success(request,'register is success')

@@ -9,8 +9,7 @@ This project includes user authentication, product management, and a basic API s
 
 - User Registration & Login  
 - Product CRUD (Add / Update / Delete)  
-- Product Categories  
-- Product Reviews  
+   
 - User Profile Page  
 - Fully Dockerized Backend  
 - PostgreSQL Database  

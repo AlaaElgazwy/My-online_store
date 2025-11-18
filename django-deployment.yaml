@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-ecommerce-deployment
+  labels:
+    app: django-ecommerce
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      app: django-ecommerce
+  template:
+    metadata:
+      labels:
+        app: django-ecommerce
+    spec:
+      containers:
+      - name: django-app
+       
+        image: alaaelgazwy/ecommerce:latest
+        imagePullPolicy: Never
+        
+        ports:
+        - containerPort: 8000 
+
+        env:
+        - name: SECRET_KEY
+          value: "django-insecure-z0i#-(gahci@jf686hq9wuq_j0i35lg@a-w+!j$b*kg#*pp*%f"
+        - name: DEBUG
+          value: "True"
+        
+        volumeMounts:
+        - name: django-media-storage
+          mountPath: /app/media 
+
+      volumes:
+      - name: django-media-storage
+        persistentVolumeClaim:
+          claimName: django-media-pvc

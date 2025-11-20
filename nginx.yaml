@@ -1,0 +1,97 @@
+# 1. ConfigMap لتخزين ملف nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  labels:
+    app: ecommerce
+data:
+  nginx.conf: |
+    upstream django_app {
+        server django-clusterip-service:8000;
+    }
+
+    server {
+        listen 80;
+
+        location /static/ {
+            alias /usr/share/nginx/html/staticfiles/;
+        }
+
+        location /media/ {
+            alias /usr/share/nginx/html/media/;
+        }
+
+        location / {
+            proxy_pass http://django_app;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+---
+# 2. Deployment لنشر Nginx
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: ecommerce
+    tier: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce
+      tier: nginx
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+        tier: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable-alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/conf.d/
+        # FIX: تمت إضافة ربط مجلد الملفات الثابتة
+        - name: static-content
+          mountPath: /usr/share/nginx/html/staticfiles
+        - name: media-content
+          mountPath: /usr/share/nginx/html/media
+
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
+      # FIX: تمت إضافة تعريف الـ Volume الخاص بالملفات الثابتة
+      - name: static-content
+        persistentVolumeClaim:
+          claimName: django-static-pvc
+      - name: media-content
+        persistentVolumeClaim:
+          claimName: django-media-pvc
+
+---
+# 3. Service لتعريض Nginx خارجياً (للمستخدم)
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecommerce-external-service
+  labels:
+    app: ecommerce
+spec:
+  type: NodePort 
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: ecommerce
+    tier: nginx

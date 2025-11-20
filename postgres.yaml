@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: ecommerce
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: ecommerce
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce
+      tier: database
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+        tier: database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        envFrom: 
+        - secretRef:
+            name: postgres-secret
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service 
+  labels:
+    app: ecommerce
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: ecommerce
+    tier: database
+  clusterIP: None

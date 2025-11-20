@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-media-pvc
+  labels:
+    app: ecommerce 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-static-pvc
+  labels:
+    app: ecommerce
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-web-deployment
+  labels:
+    app: ecommerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecommerce
+      tier: web
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+        tier: web
+    spec:
+      containers:
+      - name: django-app
+        image: alaaelgazwy/ecommerce:latest 
+        imagePullPolicy: IfNotPresent 
+        ports:
+        - containerPort: 8000
+        envFrom: 
+        - secretRef:
+            name: postgres-secret
+        env:
+        - name: DATABASE_HOST
+          value: db-service 
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: SECRET_KEY
+          value: "django-insecure-z0i#-(gahci@jf686hq9wuq_j0i35lg@a-w+!j$b*kg#*pp*%f" 
+        - name: DEBUG
+          value: "True" 
+        
+        volumeMounts:
+        - name: static-storage
+          mountPath: /app/staticfiles
+        - name: media-storage
+          mountPath: /app/media
+        
+      
+      volumes:
+      - name: static-storage
+        persistentVolumeClaim:
+          claimName: django-static-pvc
+      - name: media-storage
+        persistentVolumeClaim:
+          claimName: django-media-pvc
+      
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-clusterip-service
+  labels:
+    app: ecommerce
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: ecommerce
+    tier: web

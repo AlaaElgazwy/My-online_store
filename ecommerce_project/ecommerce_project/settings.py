@@ -25,8 +25,22 @@ SECRET_KEY = 'django-insecure-z0i#-(gahci@jf686hq9wuq_j0i35lg@a-w+!j$b*kg#*pp*%f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
+#ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.49.2', '*'] 
 
+# 2. إضافة جهات الاتصال الموثوق بها للـ CSRF
+# هذا ضروري عندما يكون هناك وكيل عكسي (مثل Nginx)
+# استخدم HTTP لأن Nginx يتلقى الطلب على منفذ HTTP/80
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://localhost:8080', # المنفذ الذي تستخدمه Nginx على المضيف
+    'http://192.168.49.2:8080'    # عنوان IP الخاص بميني كيوب، إذا كنت تستخدمه
+]
+
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -41,6 +55,9 @@ INSTALLED_APPS = [
     'accounts',
     'products'
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -127,7 +144,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 import os
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  

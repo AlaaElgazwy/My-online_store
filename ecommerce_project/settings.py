@@ -25,7 +25,31 @@ SECRET_KEY = 'django-insecure-z0i#-(gahci@jf686hq9wuq_j0i35lg@a-w+!j$b*kg#*pp*%f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
+#ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
+
+# في ملف settings.py الخاص بك
+
+# 1. إضافة المضيفين المسموح بهم
+# إذا كنت تستخدم Docker على جهازك، فاستخدم 127.0.0.1 و localhost.
+# إذا كنت تستخدم Minikube، أضف عنوان IP الخاص به إذا لزم الأمر.
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.49.2', '*'] 
+
+# 2. إضافة جهات الاتصال الموثوق بها للـ CSRF
+# هذا ضروري عندما يكون هناك وكيل عكسي (مثل Nginx)
+# استخدم HTTP لأن Nginx يتلقى الطلب على منفذ HTTP/80
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://localhost:8080', # المنفذ الذي تستخدمه Nginx على المضيف
+    'http://192.168.49.2:8080'    # عنوان IP الخاص بميني كيوب، إذا كنت تستخدمه
+]
+
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+
 
 
 # Application definition

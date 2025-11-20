@@ -2,6 +2,13 @@
 {% block title %}Register{% endblock %}
 {% block content %}
 <form method="POST" action="{% url 'register' %}" class="form">
+   {% if messages %}
+{% for message in messages %}
+{{ message }}
+{% endfor %}
+{% endif %} 
+
+{% endblock %}
   {% csrf_token %}
 
   <label>Username</label>
@@ -11,9 +18,9 @@
   <input type="email" name="email" placeholder="Enter email" required>
 
   <label>Password</label>
-  <input type="password" name="password1" placeholder="Enter password" required>
+  <input type="password" name="password" placeholder="Enter password" required>
   
   <button type="submit" class="btn">Register</button>
 </form>
 
-{% endblock %}
+
